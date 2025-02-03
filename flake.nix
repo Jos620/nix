@@ -57,6 +57,7 @@
           pkgs.supabase-cli
           pkgs.zoxide
           pkgs.gum
+          pkgs.volta
         ];
 
       homebrew = {
