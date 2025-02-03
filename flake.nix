@@ -30,6 +30,8 @@
           pkgs.git
           pkgs.postgresql
           pkgs.python3
+          pkgs.pass
+          pkgs.gnupg
 
           # GUI
           pkgs.alacritty
