@@ -6,9 +6,13 @@
     nix-darwin.url = "github:LnL7/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nix-homebrew }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nix-homebrew, home-manager }:
   let
     configuration = { pkgs, config, ... }: {
       nixpkgs.config.allowUnfree = true;
@@ -120,6 +124,9 @@
       nixpkgs.hostPlatform = "x86_64-darwin";
 
       users.users.mateusito.shell = pkgs.fish;
+      users.users.mateusito.home = "/Users/mateusito";
+      home-manager.backupFileExtension = "bak";
+      nix.configureBuildUsers = true;
     };
   in
   {
@@ -128,6 +135,11 @@
     darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
       modules = [
         configuration 
+        home-manager.darwinModules.home-manager {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.mateusito = import ./home.nix;
+        }
         nix-homebrew.darwinModules.nix-homebrew
         {
           nix-homebrew = {
