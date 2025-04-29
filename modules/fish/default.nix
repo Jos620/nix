@@ -1,5 +1,4 @@
-{ config, pkgs, lib, ... }:
-{
+{ config, pkgs, lib, ... }: {
   programs.fish = {
     enable = true;
 
@@ -19,12 +18,13 @@
       # Remove ctrl+h binding
       bind \ch kill-backward-char
 
-      source /usr/local/opt/asdf/libexec/asdf.fish
+      # source /usr/local/opt/asdf/libexec/asdf.fish
     '';
 
     shellInit = ''
       # Environment variables
       set -gx PATH $HOME/.local/bin $PATH
+      set -gx PATH $HOME/.cargo/bin $PATH
       set -gx PATH $HOME/go/bin $PATH
       set -gx PATH $HOME/Tools/flutter/bin $PATH
       set -gx PATH $HOME/.orbstack/bin $PATH
@@ -42,6 +42,7 @@
       set -gx HOMEBREW_NO_AUTO_UPDATE "1"
       set -gx BUN_INSTALL "$HOME/.bun"
       set -gx VOLTA_HOME "$HOME/.volta"
+      set -gx VOLTA_FEATURE_PNPM "1"
 
       # Theme settings
       set -g theme_display_group no
@@ -89,8 +90,10 @@
     shellAliases = {
       # General
       reload = "source ~/.config/fish/config.fish";
-      docs = "tldr --list | fzf --preview 'tldr {1} --color=always' --preview-window=right,70% | xargs tldr";
-      ls = "eza --long --git --color=always --icons=always --sort=type --no-filesize --no-time --no-user --no-permissions";
+      docs =
+        "tldr --list | fzf --preview 'tldr {1} --color=always' --preview-window=right,70% | xargs tldr";
+      ls =
+        "eza --long --git --color=always --icons=always --sort=type --no-filesize --no-time --no-user --no-permissions";
       la = "ls -a";
       c = "clear";
       cl = "clear";
@@ -105,7 +108,7 @@
       vim = "nvim";
       vnim = "nvim";
       nvimo = "NVIM_APPNAME=nvim-personal nvim";
-      nv = "nvimo";
+      nv = "NVIM_APPNAME=nvim-astro nvim";
       "nvim." = "nvim .";
 
       # Git
@@ -147,24 +150,25 @@
       '';
 
       fish_prompt = ''
-        set -l branch (git_branch)
+        # First line: current directory (Yellow)
+        set_color f9e2af
+        printf '%s' (prompt_pwd)
 
-        set primary_color             "blue"
-        set bg_color                  "#131313"
-        set branch_color              "#262626"
-
-        set fish_color_command        "green"
-        set fish_color_error         "yellow"
-        set fish_color_param         "blue"
-        set fish_color_autosuggestion "#565453"
-        set fish_color_comment       "#565453"
-        set fish_color_valid_path    "blue"
-
-        if test -n "$branch"
-          string join ' ' -- (set_color $bg_color --background $primary_color) $(prompt_pwd) (set_color $primary_color --background $branch_color) "$(git_branch) "(set_color normal --background $bg_color) \n(set_color $primary_color --background $bg_color)' » '(set_color normal)' '
-        else
-          string join ' ' -- (set_color $bg_color --background $primary_color) $(prompt_pwd) (set_color normal --background $bg_color) \n(set_color $primary_color --background $bg_color)' » '(set_color normal)' '
+        # Git branch (Lavender)
+        if type -q git
+            set branch (command git rev-parse --abbrev-ref HEAD 2>/dev/null)
+            if test -n "$branch"
+                set_color b4befe
+                printf ' (%s)' $branch
+            end
         end
+
+        # Newline before command input
+        echo
+
+        # Second line: prompt symbol (Pink)
+        set_color f5c2e7
+        echo -n '» '
       '';
 
       s = ''
